@@ -1,3 +1,5 @@
+import threading
+
 from ursina import *
 import time
 import cv2
@@ -53,58 +55,80 @@ def PlotHand():
 
 
 def update():
-
-    while True:
-        print("New calculation\n\n")
-        count = 0
-        t = time.time()
-
-        PlotHand()  # In here Hands are extracted from CalcLandMarks() and plotted.
-
-        player.x += held_keys['d'] * 0.1
-        player.x -= held_keys['a'] * 0.1
-        player.y += held_keys['e'] * 0.1
-        player.y -= held_keys['q'] * 0.1
-        player.z += held_keys['w'] * 0.1
-        player.z -= held_keys['s'] * 0.1
-
-        player.rotation_x += held_keys['r'] * 5
-        player.rotation_y += held_keys['f'] * 5
-        player.rotation_z += held_keys['t'] * 5
-
-        time_diff = time.time() - t
-        count += 1
-        time_avg = time_diff / count
-        print("Time taken : ", time_diff)
-        print("Average time taken : ", time_avg)
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):  # Press q to quit
-            break
-
-    cap.release()
-    cv2.destroyAllWindows()
-
     # player.position = mouse.position
     # player.x = mouse.x
+    player.x += held_keys['d'] * 0.1
+    player.x -= held_keys['a'] * 0.1
+    player.y += held_keys['e'] * 0.1
+    player.y -= held_keys['q'] * 0.1
+    player.z += held_keys['w'] * 0.1
+    player.z -= held_keys['s'] * 0.1
 
+    player.rotation_x += held_keys['r'] * 5
+    player.rotation_y += held_keys['f'] * 5
+    player.rotation_z += held_keys['t'] * 5
 
     # cube.rotation_x += 0.25
     # cube.rotation_y += 0.25
 
+def run_ursin():
+    update()
+
+def run_cv():
+    print("New calculation\n\n")
+    count = 0
+    t = time.time()
+
+    PlotHand()  # In here Hands are extracted from CalcLandMarks() and plotted.
+
+    time_diff = time.time() - t
+    count += 1
+    time_avg = time_diff / count
+    print("Time taken : ", time_diff)
+    print("Average time taken : ", time_avg)
+
 
 if __name__ == '__main__':
-    cap = cv2.VideoCapture(0)
-
-    mpHands = mediapipe.solutions.hands
-    hands = mpHands.Hands()
-    mpDraw = mediapipe.solutions.drawing_utils  # For drawing landmarks
 
     app = Ursina()
     # cube = Entity(model='cube', scale=2, color=color.red)
     # player = Entity(model='cube', scale=2, color=color.green)
     player = Entity(model='Objects/dragon.obj', scale=2, color=color.green)
 
+    cap = cv2.VideoCapture(0)
 
+    mpHands = mediapipe.solutions.hands
+    hands = mpHands.Hands()
+    mpDraw = mediapipe.solutions.drawing_utils  # For drawing landmarks
+
+    # create thread
+    #th1 = threading.Thread(target=run_ursin, args=(10,))
+    #th2 = threading.Thread(target=run_cv, args=(10,))
+
+    # start thread
+    ##th1.start()
+    #th2.start()
 
     app.run()
+
+    while True:
+
+        # wait for thread to finish
+        #.join()
+        #th2.join()
+
+        # run_ursin()
+        run_cv()
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):  # Press q to quit
+            break
+
+
+
+
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+
 
