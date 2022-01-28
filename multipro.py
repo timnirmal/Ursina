@@ -1,4 +1,4 @@
-from multiprocessing import Process, Pipe
+from multiprocessing import Process
 import os
 
 
@@ -9,10 +9,6 @@ def loop_a():
 
 def loop_b():
     while 1:
-        parent_conn, child_conn = Pipe()
-        p = Process(target=f, args=(child_conn,))
-        p.start()
-        print(parent_conn.recv())  # prints "Hello"
         os.system("python MouseController.py")
 
 
